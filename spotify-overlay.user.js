@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Spotify Overlay
 // @namespace    spotify-overlay
-// @version      3.9
+// @version      4.0
 // @description  Tampilan ringan dan sederhana di atas web player Spotify asli
 // @match        https://open.spotify.com/*
 // @run-at       document-start
@@ -91,18 +91,18 @@
     'html.sl #main-view [data-testid="grid-container"] { --column-width: 150px !important; --min-container-width: 0px !important; }' +
     'html.sl #main-view [data-testid="carousel-scroller"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }' +
 
-    // tab filter (Semua/Musik/Podcast/Buku Audio) center, agak besar & pas, tanpa kepotong, ikut ke-scroll
+    // tab filter (Semua/Musik/Podcast/Buku Audio) sejajar penuh dengan kartu di bawah, ukuran besar & rapi
     'html.sl .sl-fbar { position: relative !important; top: auto !important; z-index: auto !important; overflow: visible !important; }' +
-    'html.sl .sl-flist { display: flex !important; justify-content: center !important; align-items: center !important;' +
-    ' flex-wrap: nowrap !important; width: 100% !important; gap: 8px !important; padding: 6px 10px !important;' +
-    ' box-sizing: border-box !important; margin: 0 auto !important; overflow: visible !important; }' +
+    'html.sl .sl-flist { display: flex !important; justify-content: space-between !important; align-items: center !important;' +
+    ' flex-wrap: nowrap !important; width: 100% !important; gap: 8px !important; padding: 6px 0 !important;' +
+    ' box-sizing: border-box !important; margin: 0 !important; overflow: visible !important; }' +
     'html.sl .sl-flist > button, html.sl .sl-flist > * > button {' +
-    ' flex: 0 1 auto !important; border-radius: 999px !important; overflow: visible !important;' +
-    ' min-height: 34px !important; height: auto !important; padding: 0 !important; margin: 0 !important; }' +
+    ' flex: 1 1 auto !important; display: inline-flex !important; border-radius: 999px !important; overflow: visible !important;' +
+    ' min-height: 38px !important; height: auto !important; padding: 0 !important; margin: 0 !important; }' +
     'html.sl .sl-flist button > span {' +
-    ' font-size: 13.5px !important; font-weight: 600 !important; line-height: 1.2 !important; padding: 8px 14px !important;' +
-    ' border-radius: 999px !important; white-space: nowrap !important; display: inline-flex !important;' +
-    ' align-items: center !important; justify-content: center !important; }' +
+    ' width: 100% !important; font-size: 14.5px !important; font-weight: 700 !important; line-height: 1.2 !important;' +
+    ' padding: 9px 14px !important; border-radius: 999px !important; white-space: nowrap !important;' +
+    ' display: inline-flex !important; align-items: center !important; justify-content: center !important; box-sizing: border-box !important; }' +
 
     '#sl-top, #sl-bot, #sl-cls, #sl-go, #sl-tg {' +
     ' display: none; position: fixed; z-index: 2147483000; box-sizing: border-box; color: #fff;' +
