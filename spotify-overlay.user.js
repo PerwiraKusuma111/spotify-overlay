@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Spotify Overlay
 // @namespace    spotify-overlay
-// @version      4.2
+// @version      4.3
 // @description  Tampilan ringan dan sederhana di atas web player Spotify asli
 // @match        https://open.spotify.com/*
 // @run-at       document-start
@@ -38,14 +38,19 @@
 
   var css =
     ':root { --sl-k: 1; --sl-mz: 1; }' +
-    'html, body { touch-action: pan-x pan-y !important; }' +
+    'html, body { touch-action: pan-x pan-y !important; background: #121212 !important; }' +
     '* { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; text-shadow: none !important; }' +
     'html.sl #main-view *:not(img) { transition: none !important; animation: none !important; }' +
     'html.sl #main-view img { opacity: 1 !important; visibility: visible !important; }' +
 
+    // sembunyikan sidebar kiri, footer, modal bahasa, resize bar, dan panel kanan secara instan (0ms, tanpa kedip)
     'html.sl #Desktop_LeftSidebar_Id,' +
     'html.sl [data-testid="footer-div"],' +
-    'html.sl [data-testid="language-selection-modal"] { display: none !important; }' +
+    'html.sl [data-testid="language-selection-modal"],' +
+    'html.sl [data-testid="LayoutResizer__resize-bar"],' +
+    'html.sl aside:has([data-testid="lyrics-npv-section"], [data-testid="npv-artist-link"], [data-testid="npv-artist-bio-button"]),' +
+    'html.sl #main-view ~ aside,' +
+    'html.sl #main-view ~ div:has([data-testid="lyrics-npv-section"], [data-testid="npv-artist-link"], [data-testid="npv-artist-bio-button"]) { display: none !important; }' +
 
     'html.sl [data-testid="now-playing-bar"],' +
     'html.sl:not(.sl-s) [data-testid="global-nav-bar"] {' +
@@ -85,7 +90,7 @@
     ' width: 100% !important; min-width: 100% !important; max-width: 100% !important; left: 0 !important; right: 0 !important; box-sizing: border-box !important; }' +
 
     'html.sl #main-view { position: fixed !important; left: 0 !important; right: 0 !important;' +
-    ' width: auto !important; height: auto !important; margin: 0 !important;' +
+    ' width: auto !important; height: auto !important; margin: 0 !important; z-index: 50 !important; background: #121212 !important;' +
     ' top: calc(54px * var(--sl-k)) !important; bottom: calc(74px * var(--sl-k)) !important;' +
     ' overflow-y: auto !important; overflow-x: hidden !important; }' +
     'html.sl #main-view > * { zoom: var(--sl-mz) !important; min-width: 0 !important; max-width: 100% !important; }' +
@@ -540,7 +545,7 @@
 
     var t2 = null;
     new MutationObserver(function () {
-      if (!t2) t2 = setTimeout(function () { t2 = null; hideRight(); }, 800);
+      if (!t2) t2 = setTimeout(function () { t2 = null; hideRight(); }, 120);
     }).observe(document.body, { childList: true, subtree: true });
     hideRight();
   }
