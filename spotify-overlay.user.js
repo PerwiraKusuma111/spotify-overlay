@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Spotify Overlay
 // @namespace    spotify-overlay
-// @version      3.4
+// @version      3.5
 // @description  Tampilan ringan dan sederhana di atas web player Spotify asli
 // @match        https://open.spotify.com/*
 // @run-at       document-start
@@ -254,9 +254,12 @@
   }
 
   function setNativeInput(inp, val) {
+    var prev = inp.value;
     var d = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
     if (d && d.set) d.set.call(inp, val);
     else inp.value = val;
+    var tr = inp._valueTracker;
+    if (tr) tr.setValue(prev === val ? (val ? '' : ' ') : prev);
     inp.dispatchEvent(new Event('input', { bubbles: true }));
     inp.dispatchEvent(new Event('change', { bubbles: true }));
   }
@@ -292,7 +295,7 @@
   var icPlayEl, icPauseEl, lastPlaying = null;
   var seeking = false, curDur = 0;
 
-  function renderSuggestions(query) {
+  function renderSuggestions(query, done) {
     if (!elSug || !elTop || !elTop.classList.contains('s-on')) return;
     var qTrim = (query || '').trim();
     var qLow = qTrim.toLowerCase();
@@ -308,19 +311,16 @@
       items.push(obj);
     }
 
-    // Jika sedang mengetik dan Spotify sudah di halaman /search/, ambil saran lagu asli dari Spotify
-    if (qLow && location.pathname.indexOf('/search/') === 0) {
+    // Jika sedang mengetik dan Spotify sudah di halaman /search, ambil saran lagu asli dari Spotify
+    if (qLow && location.pathname.indexOf('/search') === 0) {
       var mv = document.getElementById('main-view');
       if (mv) {
-        var rows = mv.querySelectorAll('[data-testid="tracklist-row"]');
+        var rows = mv.querySelectorAll('[data-testid="tracklist-row"], [role="row"]');
         for (var r = 0; r < rows.length && items.length < 6; r++) {
           var rowEl = rows[r];
           var link = rowEl.querySelector('a[href*="/track/"]');
-          var title = link ? link.textContent.trim() : '';
-          if (!title) {
-            var dir = rowEl.querySelector('[dir="auto"]');
-            title = dir ? dir.textContent.trim() : '';
-          }
+          if (!link) continue;
+          var title = link.textContent.trim();
           var artLinks = rowEl.querySelectorAll('a[href*="/artist/"]');
           var arts = [];
           for (var ai = 0; ai < artLinks.length; ai++) {
@@ -336,6 +336,46 @@
               img: imgEl ? imgEl.src : '',
               action: playBtn || link
             });
+          }
+        }
+        // Fallback jika struktur row berbeda: ambil langsung dari link /track/
+        if (!items.length) {
+          var tLinks = mv.querySelectorAll('a[href*="/track/"]');
+          for (var tl = 0; tl < tLinks.length && items.length < 6; tl++) {
+            var aEl = tLinks[tl];
+            var tt = aEl.textContent.trim();
+            if (!tt) continue;
+            var box = aEl.parentElement;
+            for (var up = 0; up < 4 && box && !box.querySelector('img'); up++) box = box.parentElement;
+            var im2 = box && box.querySelector('img');
+            var al2 = box ? box.querySelectorAll('a[href*="/artist/"]') : [];
+            var ar2 = [];
+            for (var bi = 0; bi < al2.length; bi++) {
+              var bn = al2[bi].textContent.trim();
+              if (bn && ar2.indexOf(bn) < 0) ar2.push(bn);
+            }
+            var pb2 = box && (box.querySelector('button[aria-label*="Putar"], button[aria-label*="Play"]') || box.querySelector('button'));
+            add({
+              title: tt,
+              sub: 'Lagu' + (ar2.length ? ' \u2022 ' + ar2.join(', ') : ''),
+              img: im2 ? im2.src : '',
+              action: pb2 || aEl
+            });
+          }
+        }
+        // Fallback artis/album/playlist jika tidak ada lagu
+        if (!items.length) {
+          var oLinks = mv.querySelectorAll('a[href*="/artist/"], a[href*="/album/"], a[href*="/playlist/"]');
+          for (var oi = 0; oi < oLinks.length && items.length < 6; oi++) {
+            var ol = oLinks[oi];
+            var ot = ol.textContent.trim();
+            if (!ot) continue;
+            var oh = ol.getAttribute('href') || '';
+            var otag = oh.indexOf('/artist/') > -1 ? 'Artis' : oh.indexOf('/album/') > -1 ? 'Album' : 'Playlist';
+            var obox = ol.parentElement;
+            for (var ou = 0; ou < 4 && obox && !obox.querySelector('img'); ou++) obox = obox.parentElement;
+            var oim = obox && obox.querySelector('img');
+            add({ title: ot, sub: otag, img: oim ? oim.src : '', action: ol });
           }
         }
       }
@@ -357,10 +397,17 @@
         waitRow.className = 'sl-si';
         var wTx = el('div', '');
         wTx.className = 'sl-si-tx';
-        var wT = el('div', '', 'Mencari "' + qTrim + '"...');
+        var wT = el('div', '', done ? ('Tekan Cari untuk "' + qTrim + '"') : ('Mencari "' + qTrim + '"...'));
         wT.className = 'sl-si-s';
         wTx.appendChild(wT);
         waitRow.appendChild(wTx);
+        waitRow.onmousedown = function (ev) { ev.preventDefault(); };
+        waitRow.onclick = function () {
+          saveHist(qTrim);
+          doSearch(qTrim, true);
+          elSug.classList.remove('show');
+          elQ.blur();
+        };
         elSug.appendChild(waitRow);
         elSug.classList.add('show');
       } else {
@@ -595,16 +642,16 @@
         renderSuggestions('');
         return;
       }
-      renderSuggestions(v);
+      renderSuggestions(v, false);
       timer = setTimeout(function () {
         doSearch(elQ.value, false);
-        sugT1 = setTimeout(function () { renderSuggestions(elQ.value); }, 400);
-        sugT2 = setTimeout(function () { renderSuggestions(elQ.value); }, 950);
-        sugT3 = setTimeout(function () { renderSuggestions(elQ.value); }, 1600);
+        sugT1 = setTimeout(function () { renderSuggestions(elQ.value, false); }, 450);
+        sugT2 = setTimeout(function () { renderSuggestions(elQ.value, false); }, 1100);
+        sugT3 = setTimeout(function () { renderSuggestions(elQ.value, true); }, 2500);
       }, 260);
     };
     elQ.onfocus = function () {
-      if (elTop.classList.contains('s-on')) renderSuggestions(elQ.value);
+      if (elTop.classList.contains('s-on')) renderSuggestions(elQ.value, false);
     };
     elQ.onkeydown = function (ev) {
       if (ev.key === 'Enter') {
@@ -645,9 +692,12 @@
     tick();
     setInterval(tick, 1000);
 
-    var t2 = null;
+    var t2 = null, tSug = null;
     new MutationObserver(function () {
       if (!t2) t2 = setTimeout(function () { t2 = null; hideRight(); }, 800);
+      if (elTop.classList.contains('s-on') && elQ.value.trim() && !tSug) {
+        tSug = setTimeout(function () { tSug = null; renderSuggestions(elQ.value, false); }, 350);
+      }
     }).observe(document.body, { childList: true, subtree: true });
     hideRight();
   }
