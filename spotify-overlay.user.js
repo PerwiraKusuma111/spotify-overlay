@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Spotify Overlay
 // @namespace    spotify-overlay
-// @version      3.6
+// @version      3.7
 // @description  Tampilan ringan dan sederhana di atas web player Spotify asli
 // @match        https://open.spotify.com/*
 // @run-at       document-start
@@ -46,10 +46,34 @@
     'html.sl [data-testid="footer-div"],' +
     'html.sl [data-testid="language-selection-modal"] { display: none !important; }' +
 
-    'html.sl [data-testid="global-nav-bar"],' +
-    'html.sl [data-testid="now-playing-bar"] {' +
+    'html.sl [data-testid="now-playing-bar"],' +
+    'html.sl:not(.sl-s) [data-testid="global-nav-bar"] {' +
     ' position: fixed !important; left: 0 !important; top: -9999px !important;' +
     ' width: 100% !important; opacity: 0 !important; pointer-events: none !important; }' +
+
+    // Mode cari: tampilkan search bar & dropdown saran asli Spotify di posisi bar atas
+    'html.sl.sl-s [data-testid="global-nav-bar"] {' +
+    ' position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important;' +
+    ' width: auto !important; height: calc(54px * var(--sl-k)) !important;' +
+    ' opacity: 1 !important; pointer-events: auto !important; z-index: 2147483002 !important;' +
+    ' background: #121212 !important; border-bottom: 1px solid #242424 !important;' +
+    ' padding: 0 calc(68px * var(--sl-k)) 0 calc(48px * var(--sl-k)) !important;' +
+    ' display: flex !important; align-items: center !important; justify-content: center !important;' +
+    ' overflow: visible !important; margin: 0 !important; box-sizing: border-box !important; }' +
+
+    'html.sl.sl-s [data-testid="global-nav-bar"] > * {' +
+    ' zoom: var(--sl-mz) !important; flex: 1 !important; min-width: 0 !important; max-width: 100% !important; }' +
+
+    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="home-button"],' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="user-widget-link"],' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="whats-new-feed-button"],' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="friend-activity-button"],' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="browse-button"],' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] a[href="/"],' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] a[href="/download"] { display: none !important; }' +
+
+    'html.sl.sl-s [data-testid="global-nav-bar"] form[role="search"] {' +
+    ' width: 100% !important; max-width: none !important; min-width: 0 !important; margin: 0 !important; }' +
 
     'html.sl #main-view { position: fixed !important; left: 0 !important; right: 0 !important;' +
     ' width: auto !important; height: auto !important; margin: 0 !important;' +
@@ -67,19 +91,17 @@
     ' flex: 1 1 auto !important; justify-content: center !important; text-align: center !important;' +
     ' font-size: 13px !important; padding: 7px 12px !important; min-height: 32px !important; white-space: nowrap !important; }' +
 
-    '#sl-top, #sl-bot, #sl-sug, #sl-tg {' +
-    ' display: none; position: fixed; z-index: 2147483000; left: 0; right: 0;' +
-    ' box-sizing: border-box; color: #fff;' +
+    '#sl-top, #sl-bot, #sl-cls, #sl-go, #sl-tg {' +
+    ' display: none; position: fixed; z-index: 2147483000; box-sizing: border-box; color: #fff;' +
     ' font-family: var(--encore-body-font-stack, var(--font-family, "SpotifyMixUI", "CircularSp", sans-serif));' +
     ' font-size: calc(13px * var(--sl-k)); line-height: 1.2; }' +
 
-    'html.sl #sl-top, html.sl #sl-bot {' +
-    ' display: flex; align-items: center; gap: calc(8px * var(--sl-k)); padding: 0 calc(10px * var(--sl-k)); }' +
+    'html.sl:not(.sl-s) #sl-top, html.sl #sl-bot {' +
+    ' display: flex; align-items: center; gap: calc(8px * var(--sl-k)); padding: 0 calc(10px * var(--sl-k)); left: 0; right: 0; }' +
 
     '#sl-top { top: 0; height: calc(54px * var(--sl-k)); background: #121212; border-bottom: 1px solid #242424; }' +
     '#sl-bot { bottom: 0; height: calc(74px * var(--sl-k)); background: #181818; border-top: 1px solid #282828; padding-top: calc(4px * var(--sl-k)); }' +
 
-    // tombol Spotify besar & bold seperti contoh, tanpa rounded
     '#sl-h {' +
     ' background: transparent; color: #fff; border: 0; border-radius: 0;' +
     ' padding: 0 calc(4px * var(--sl-k)); margin: 0; cursor: pointer; flex: none;' +
@@ -93,44 +115,18 @@
     ' width: calc(36px * var(--sl-k)); height: calc(36px * var(--sl-k)); padding: 0;' +
     ' display: inline-flex; align-items: center; justify-content: center; flex: none; cursor: pointer; }' +
 
-    '#sl-q {' +
-    ' display: none; flex: 1; min-width: 0; border: 0; border-radius: calc(18px * var(--sl-k));' +
-    ' background: #282828; color: #fff; padding: calc(8px * var(--sl-k)) calc(12px * var(--sl-k));' +
-    ' font: inherit; outline: 0; }' +
+    '#sl-cls { display: none; top: calc(9px * var(--sl-k)); left: calc(6px * var(--sl-k)); z-index: 2147483005; }' +
+    'html.sl.sl-s #sl-cls { display: inline-flex; }' +
 
     '#sl-go {' +
-    ' display: none; background: #1db954; color: #000; font-weight: 700; border: 0;' +
-    ' border-radius: calc(16px * var(--sl-k)); padding: calc(8px * var(--sl-k)) calc(12px * var(--sl-k));' +
-    ' font: inherit; flex: none; cursor: pointer; }' +
+    ' display: none; top: calc(9px * var(--sl-k)); right: calc(6px * var(--sl-k)); z-index: 2147483005;' +
+    ' background: #1db954; color: #000; font-weight: 700; border: 0; height: calc(36px * var(--sl-k));' +
+    ' border-radius: calc(18px * var(--sl-k)); padding: 0 calc(14px * var(--sl-k)); font: inherit; cursor: pointer; }' +
+    'html.sl.sl-s #sl-go.show { display: inline-flex; align-items: center; justify-content: center; }' +
 
     '#sl-o, #sl-tg {' +
     ' background: #282828; color: #fff; border: 0; border-radius: calc(16px * var(--sl-k));' +
     ' padding: calc(7px * var(--sl-k)) calc(11px * var(--sl-k)); font: inherit; flex: none; cursor: pointer; }' +
-
-    '#sl-top.s-on #sl-h, #sl-top.s-on #sl-sp, #sl-top.s-on #sl-sbtn, #sl-top.s-on #sl-o { display: none; }' +
-    '#sl-top:not(.s-on) #sl-cls, #sl-top:not(.s-on) #sl-q, #sl-top:not(.s-on) #sl-go { display: none !important; }' +
-    '#sl-top.s-on #sl-cls { display: inline-flex; }' +
-    '#sl-top.s-on #sl-q { display: block; }' +
-
-    // dropdown saran pencarian gaya Spotify (thumbnail + judul + artis)
-    '#sl-sug {' +
-    ' top: calc(54px * var(--sl-k)); max-height: 55vh; overflow-y: auto;' +
-    ' background: #121212; border-bottom: 1px solid #2e2e2e; }' +
-    'html.sl #sl-sug.show { display: block; }' +
-    '.sl-si {' +
-    ' display: flex; align-items: center; gap: calc(10px * var(--sl-k));' +
-    ' padding: calc(8px * var(--sl-k)) calc(12px * var(--sl-k));' +
-    ' border-top: 1px solid #222; cursor: pointer; }' +
-    '.sl-si:active { background: #282828; }' +
-    '.sl-si-img {' +
-    ' width: calc(40px * var(--sl-k)); height: calc(40px * var(--sl-k));' +
-    ' border-radius: calc(4px * var(--sl-k)); object-fit: cover; background: #2a2a2a; flex: none; }' +
-    '.sl-si-ic {' +
-    ' width: calc(40px * var(--sl-k)); height: calc(40px * var(--sl-k)); border-radius: 50%;' +
-    ' background: #242424; color: #b3b3b3; display: inline-flex; align-items: center; justify-content: center; flex: none; }' +
-    '.sl-si-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: calc(2px * var(--sl-k)); }' +
-    '.sl-si-t { font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }' +
-    '.sl-si-s { font-size: calc(11px * var(--sl-k)); color: #a7a7a7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }' +
 
     // slider progress musik
     '#sl-pb {' +
@@ -249,46 +245,6 @@
     }
   }
 
-  function loadHist() {
-    try { return JSON.parse(localStorage.getItem('sl_hist') || '[]') || []; } catch (e) { return []; }
-  }
-  function saveHist(term) {
-    term = (term || '').trim();
-    if (!term) return;
-    var h = loadHist().filter(function (x) { return x.toLowerCase() !== term.toLowerCase(); });
-    h.unshift(term);
-    if (h.length > 10) h.length = 10;
-    try { localStorage.setItem('sl_hist', JSON.stringify(h)); } catch (e) {}
-  }
-
-  function setNativeInput(inp, val) {
-    var prev = inp.value;
-    var d = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
-    if (d && d.set) d.set.call(inp, val);
-    else inp.value = val;
-    var tr = inp._valueTracker;
-    if (tr) tr.setValue(prev === val ? (val ? '' : ' ') : prev);
-    inp.dispatchEvent(new Event('input', { bubbles: true }));
-    inp.dispatchEvent(new Event('change', { bubbles: true }));
-  }
-
-  // Kirim teks ke Spotify tanpa mencuri fokus dari elQ
-  function doSearch(v, force) {
-    v = (v || '').trim();
-    var i = q('search-input');
-    if (i) {
-      setNativeInput(i, v);
-      if (force && v) {
-        i.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, bubbles: true }));
-      }
-      if (!force && elTop && elTop.classList.contains('s-on') && document.activeElement !== elQ) {
-        elQ.focus();
-      }
-    } else if (force && v) {
-      location.href = 'https://open.spotify.com/search/' + encodeURIComponent(v);
-    }
-  }
-
   function fixFilterBar(mv) {
     var btns = mv.querySelectorAll('button');
     var hit = null;
@@ -326,176 +282,34 @@
     if (!node.contains(mv)) node.style.display = 'none';
   }
 
-  var wrap, elTop, elSug, elIm, elT, elA, elTm, elPP, elPf, elQ, elGo;
+  var wrap, elIm, elT, elA, elTm, elPP, elPf, elGo;
   var icPlayEl, icPauseEl, lastPlaying = null;
   var seeking = false, curDur = 0;
 
-  function renderSuggestions(query, done) {
-    if (!elSug || !elTop || !elTop.classList.contains('s-on')) return;
-    var qTrim = (query || '').trim();
-    var qLow = qTrim.toLowerCase();
-    var items = [];
-    var seen = {};
+  function syncSearchBtn() {
+    if (!elGo) return;
+    var inp = q('search-input');
+    var hasText = !!(inp && (inp.value || '').trim());
+    elGo.classList.toggle('show', hasText);
+  }
 
-    function add(obj) {
-      var t = (obj.title || '').trim();
-      if (!t || t.length > 70) return;
-      var k = (t + '|' + (obj.sub || '')).toLowerCase();
-      if (seen[k]) return;
-      seen[k] = 1;
-      items.push(obj);
-    }
+  function closeSearch() {
+    html.classList.remove('sl-s');
+    if (elGo) elGo.classList.remove('show');
+    var inp = q('search-input');
+    if (inp) inp.blur();
+  }
 
-    // Jika sedang mengetik dan Spotify sudah di halaman /search, ambil saran lagu asli dari Spotify
-    if (qLow && location.pathname.indexOf('/search') === 0) {
-      var mv = document.getElementById('main-view');
-      if (mv) {
-        var rows = mv.querySelectorAll('[data-testid="tracklist-row"], [role="row"]');
-        for (var r = 0; r < rows.length && items.length < 6; r++) {
-          var rowEl = rows[r];
-          var link = rowEl.querySelector('a[href*="/track/"]');
-          if (!link) continue;
-          var title = link.textContent.trim();
-          var artLinks = rowEl.querySelectorAll('a[href*="/artist/"]');
-          var arts = [];
-          for (var ai = 0; ai < artLinks.length; ai++) {
-            var an = artLinks[ai].textContent.trim();
-            if (an && arts.indexOf(an) < 0) arts.push(an);
-          }
-          var imgEl = rowEl.querySelector('img');
-          var playBtn = rowEl.querySelector('button[aria-label*="Putar"], button[aria-label*="Play"]') || rowEl.querySelector('button');
-          if (title) {
-            add({
-              title: title,
-              sub: 'Lagu' + (arts.length ? ' \u2022 ' + arts.join(', ') : ''),
-              img: imgEl ? imgEl.src : '',
-              action: playBtn || link
-            });
-          }
-        }
-        // Fallback jika struktur row berbeda: ambil langsung dari link /track/
-        if (!items.length) {
-          var tLinks = mv.querySelectorAll('a[href*="/track/"]');
-          for (var tl = 0; tl < tLinks.length && items.length < 6; tl++) {
-            var aEl = tLinks[tl];
-            var tt = aEl.textContent.trim();
-            if (!tt) continue;
-            var box = aEl.parentElement;
-            for (var up = 0; up < 4 && box && !box.querySelector('img'); up++) box = box.parentElement;
-            var im2 = box && box.querySelector('img');
-            var al2 = box ? box.querySelectorAll('a[href*="/artist/"]') : [];
-            var ar2 = [];
-            for (var bi = 0; bi < al2.length; bi++) {
-              var bn = al2[bi].textContent.trim();
-              if (bn && ar2.indexOf(bn) < 0) ar2.push(bn);
-            }
-            var pb2 = box && (box.querySelector('button[aria-label*="Putar"], button[aria-label*="Play"]') || box.querySelector('button'));
-            add({
-              title: tt,
-              sub: 'Lagu' + (ar2.length ? ' \u2022 ' + ar2.join(', ') : ''),
-              img: im2 ? im2.src : '',
-              action: pb2 || aEl
-            });
-          }
-        }
-        // Fallback artis/album/playlist jika tidak ada lagu
-        if (!items.length) {
-          var oLinks = mv.querySelectorAll('a[href*="/artist/"], a[href*="/album/"], a[href*="/playlist/"]');
-          for (var oi = 0; oi < oLinks.length && items.length < 6; oi++) {
-            var ol = oLinks[oi];
-            var ot = ol.textContent.trim();
-            if (!ot) continue;
-            var oh = ol.getAttribute('href') || '';
-            var otag = oh.indexOf('/artist/') > -1 ? 'Artis' : oh.indexOf('/album/') > -1 ? 'Album' : 'Playlist';
-            var obox = ol.parentElement;
-            for (var ou = 0; ou < 4 && obox && !obox.querySelector('img'); ou++) obox = obox.parentElement;
-            var oim = obox && obox.querySelector('img');
-            add({ title: ot, sub: otag, img: oim ? oim.src : '', action: ol });
-          }
-        }
+  function bindNativeSearch() {
+    var inp = q('search-input');
+    if (!inp || inp._slBound) return;
+    inp._slBound = 1;
+    inp.addEventListener('input', syncSearchBtn);
+    inp.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' && html.classList.contains('sl-s')) {
+        setTimeout(closeSearch, 150);
       }
-    }
-
-    // Jika kotak kosong (baru buka search), tampilkan riwayat pencarian
-    if (!qLow) {
-      var hist = loadHist();
-      for (var i = 0; i < hist.length && items.length < 6; i++) {
-        add({ title: hist[i], sub: 'Pencarian terakhir', img: '', query: hist[i] });
-      }
-    }
-
-    while (elSug.firstChild) elSug.removeChild(elSug.firstChild);
-
-    if (!items.length) {
-      if (qLow) {
-        var waitRow = el('div', '');
-        waitRow.className = 'sl-si';
-        var wTx = el('div', '');
-        wTx.className = 'sl-si-tx';
-        var wT = el('div', '', done ? ('Tekan Cari untuk "' + qTrim + '"') : ('Mencari "' + qTrim + '"...'));
-        wT.className = 'sl-si-s';
-        wTx.appendChild(wT);
-        waitRow.appendChild(wTx);
-        waitRow.onmousedown = function (ev) { ev.preventDefault(); };
-        waitRow.onclick = function () {
-          saveHist(qTrim);
-          doSearch(qTrim, true);
-          elSug.classList.remove('show');
-          elQ.blur();
-        };
-        elSug.appendChild(waitRow);
-        elSug.classList.add('show');
-      } else {
-        elSug.classList.remove('show');
-      }
-      return;
-    }
-
-    for (var m = 0; m < items.length; m++) {
-      (function (it) {
-        var row = el('div', '');
-        row.className = 'sl-si';
-        if (it.img) {
-          var im = el('img', '');
-          im.className = 'sl-si-img';
-          im.src = it.img;
-          im.alt = '';
-          row.appendChild(im);
-        } else {
-          var ic = el('span', '');
-          ic.className = 'sl-si-ic';
-          ic.appendChild(svgIcon(IC_SEARCH, 18));
-          row.appendChild(ic);
-        }
-        var tx = el('div', '');
-        tx.className = 'sl-si-tx';
-        var tDiv = el('div', '', it.title);
-        tDiv.className = 'sl-si-t';
-        var sDiv = el('div', '', it.sub || '');
-        sDiv.className = 'sl-si-s';
-        tx.append(tDiv, sDiv);
-        row.appendChild(tx);
-
-        row.onmousedown = function (ev) { ev.preventDefault(); };
-        row.onclick = function () {
-          if (it.action) {
-            saveHist(it.title);
-            it.action.click();
-            elSug.classList.remove('show');
-            elQ.blur();
-          } else if (it.query) {
-            elQ.value = it.query;
-            elGo.style.display = 'block';
-            saveHist(it.query);
-            doSearch(it.query, true);
-            elSug.classList.remove('show');
-            elQ.blur();
-          }
-        };
-        elSug.appendChild(row);
-      })(items[m]);
-    }
-    elSug.classList.add('show');
+    });
   }
 
   function tick() {
@@ -504,6 +318,9 @@
       document.body.appendChild(wrap);
     }
     if (!elT) return;
+
+    bindNativeSearch();
+    if (html.classList.contains('sl-s')) syncSearchBtn();
 
     var npw = q('now-playing-widget-v2');
     var im = (npw && npw.querySelector('[data-testid="cover-art-image"]')) || q('cover-art-image');
@@ -548,28 +365,20 @@
 
     wrap = el('div', 'sl-root');
 
-    elTop = el('div', 'sl-top');
+    var top = el('div', 'sl-top');
     var btnH = el('button', 'sl-h', 'Spotify');
     var sp = el('div', 'sl-sp');
     var btnSearch = el('button', 'sl-sbtn');
     btnSearch.setAttribute('aria-label', 'Cari');
     btnSearch.appendChild(svgIcon(IC_SEARCH, 19));
+    var btnO = el('button', 'sl-o', 'Asli');
+    top.append(btnH, sp, btnSearch, btnO);
 
     var btnCls = el('button', 'sl-cls');
     btnCls.setAttribute('aria-label', 'Tutup');
     btnCls.appendChild(svgIcon(IC_BACK, 19));
 
-    elQ = el('input', 'sl-q');
-    elQ.type = 'text';
-    elQ.placeholder = 'Cari lagu, artis...';
-    elQ.autocomplete = 'off';
-    elQ.spellcheck = false;
-
     elGo = el('button', 'sl-go', 'Cari');
-    var btnO = el('button', 'sl-o', 'Asli');
-
-    elTop.append(btnH, sp, btnSearch, btnCls, elQ, elGo, btnO);
-    elSug = el('div', 'sl-sug');
 
     var bot = el('div', 'sl-bot');
     var pb = el('div', 'sl-pb');
@@ -608,7 +417,7 @@
 
     var btnTg = el('button', 'sl-tg', 'Ringan');
 
-    wrap.append(elTop, elSug, bot, btnTg);
+    wrap.append(top, btnCls, elGo, bot, btnTg);
     document.body.appendChild(wrap);
 
     // Event slider musik (tap & drag)
@@ -645,79 +454,48 @@
 
     btnH.onclick = function () { press('home-button'); };
 
-    var timer = null, sugT1 = null, sugT2 = null, sugT3 = null;
-    function clearSugTimers() {
-      clearTimeout(sugT1); clearTimeout(sugT2); clearTimeout(sugT3);
-    }
+    btnSearch.onclick = function () {
+      html.classList.add('sl-s');
+      bindNativeSearch();
+      syncSearchBtn();
+      var inp = q('search-input');
+      if (inp) {
+        inp.focus();
+        inp.click();
+      }
+    };
 
-    function openSearch() {
-      elTop.classList.add('s-on');
-      elGo.style.display = elQ.value.trim() ? 'block' : 'none';
-      elQ.focus();
-      renderSuggestions(elQ.value);
-    }
-    function closeSearch() {
-      clearTimeout(timer);
-      clearSugTimers();
-      elTop.classList.remove('s-on');
-      elSug.classList.remove('show');
-      elQ.blur();
-    }
-
-    btnSearch.onclick = openSearch;
     btnCls.onclick = closeSearch;
 
-    elQ.oninput = function () {
-      var v = elQ.value;
-      elGo.style.display = v.trim() ? 'block' : 'none';
-      clearTimeout(timer);
-      clearSugTimers();
-      if (!v.trim()) {
-        doSearch('', false);
-        renderSuggestions('');
-        return;
-      }
-      renderSuggestions(v, false);
-      timer = setTimeout(function () {
-        doSearch(elQ.value, false);
-        sugT1 = setTimeout(function () { renderSuggestions(elQ.value, false); }, 450);
-        sugT2 = setTimeout(function () { renderSuggestions(elQ.value, false); }, 1100);
-        sugT3 = setTimeout(function () { renderSuggestions(elQ.value, true); }, 2500);
-      }, 260);
-    };
-    elQ.onfocus = function () {
-      if (elTop.classList.contains('s-on')) renderSuggestions(elQ.value, false);
-    };
-    elQ.onkeydown = function (ev) {
-      if (ev.key === 'Enter') {
-        clearTimeout(timer);
-        clearSugTimers();
-        saveHist(elQ.value);
-        doSearch(elQ.value, true);
-        elSug.classList.remove('show');
-        elQ.blur();
-      }
-    };
     elGo.onclick = function () {
-      clearTimeout(timer);
-      clearSugTimers();
-      saveHist(elQ.value);
-      doSearch(elQ.value, true);
-      elSug.classList.remove('show');
-      elQ.blur();
+      var inp = q('search-input');
+      var val = inp ? (inp.value || '').trim() : '';
+      if (inp && val) {
+        inp.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, bubbles: true }));
+        var form = inp.closest('form');
+        if (form) form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      }
+      setTimeout(closeSearch, 150);
     };
 
-    document.addEventListener('pointerdown', function (ev) {
-      if (elSug.classList.contains('show') && !elTop.contains(ev.target) && !elSug.contains(ev.target)) {
-        elSug.classList.remove('show');
+    // Tutup bar cari otomatis setelah pilih salah satu saran lagu/pencarian
+    document.addEventListener('click', function (ev) {
+      if (!html.classList.contains('sl-s')) return;
+      var nav = q('global-nav-bar');
+      if (nav && nav.contains(ev.target)) {
+        var row = ev.target.closest('a[href], [role="option"], [role="listitem"]');
+        if (row && !ev.target.closest('button[aria-label*="Simpan"], button[aria-label*="Save"], [data-testid="clear-button"]')) {
+          setTimeout(closeSearch, 200);
+        }
       }
-    });
+    }, true);
 
     btnPv.onclick = function () { press('control-button-skip-back'); };
     elPP.onclick = function () { press('control-button-playpause'); };
     btnNx.onclick = function () { press('control-button-skip-forward'); };
 
     function toggle() {
+      html.classList.remove('sl-s');
       var on = html.classList.toggle('sl');
       try { localStorage.setItem('sl_off', on ? '0' : '1'); } catch (e) {}
     }
@@ -727,12 +505,9 @@
     tick();
     setInterval(tick, 1000);
 
-    var t2 = null, tSug = null;
+    var t2 = null;
     new MutationObserver(function () {
       if (!t2) t2 = setTimeout(function () { t2 = null; hideRight(); }, 800);
-      if (elTop.classList.contains('s-on') && elQ.value.trim() && !tSug) {
-        tSug = setTimeout(function () { tSug = null; renderSuggestions(elQ.value, false); }, 350);
-      }
     }).observe(document.body, { childList: true, subtree: true });
     hideRight();
   }
