@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Spotify Overlay
 // @namespace    spotify-overlay
-// @version      4.0
+// @version      4.1
 // @description  Tampilan ringan dan sederhana di atas web player Spotify asli
 // @match        https://open.spotify.com/*
 // @run-at       document-start
@@ -91,14 +91,16 @@
     'html.sl #main-view [data-testid="grid-container"] { --column-width: 150px !important; --min-container-width: 0px !important; }' +
     'html.sl #main-view [data-testid="carousel-scroller"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }' +
 
-    // tab filter (Semua/Musik/Podcast/Buku Audio) sejajar penuh dengan kartu di bawah, ukuran besar & rapi
+    // tab filter (Semua/Musik/Podcast/Buku Audio) sejajar penuh kiri-kanan dengan kartu di bawah
     'html.sl .sl-fbar { position: relative !important; top: auto !important; z-index: auto !important; overflow: visible !important; }' +
+    'html.sl .sl-fwrap { width: 100% !important; max-width: 100% !important; flex: 1 1 100% !important; }' +
     'html.sl .sl-flist { display: flex !important; justify-content: space-between !important; align-items: center !important;' +
     ' flex-wrap: nowrap !important; width: 100% !important; gap: 8px !important; padding: 6px 0 !important;' +
     ' box-sizing: border-box !important; margin: 0 !important; overflow: visible !important; }' +
-    'html.sl .sl-flist > button, html.sl .sl-flist > * > button {' +
-    ' flex: 1 1 auto !important; display: inline-flex !important; border-radius: 999px !important; overflow: visible !important;' +
-    ' min-height: 38px !important; height: auto !important; padding: 0 !important; margin: 0 !important; }' +
+    'html.sl .sl-flist > * { flex: 1 1 auto !important; display: flex !important; min-width: 0 !important; margin: 0 !important; }' +
+    'html.sl .sl-flist button {' +
+    ' width: 100% !important; flex: 1 1 auto !important; display: inline-flex !important; border-radius: 999px !important;' +
+    ' overflow: visible !important; min-height: 38px !important; height: auto !important; padding: 0 !important; margin: 0 !important; }' +
     'html.sl .sl-flist button > span {' +
     ' width: 100% !important; font-size: 14.5px !important; font-weight: 700 !important; line-height: 1.2 !important;' +
     ' padding: 9px 14px !important; border-radius: 999px !important; white-space: nowrap !important;' +
@@ -274,6 +276,9 @@
     }
     if (!hit) return;
     if (!hit.classList.contains('sl-flist')) hit.classList.add('sl-flist');
+    if (hit.parentElement && hit.parentElement !== mv && !hit.parentElement.classList.contains('sl-fwrap')) {
+      hit.parentElement.classList.add('sl-fwrap');
+    }
     var cur = hit;
     while (cur && cur !== mv) {
       if (!cur.classList.contains('sl-fbar')) {
