@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Spotify Overlay
 // @namespace    spotify-overlay
-// @version      3.2
+// @version      3.3
 // @description  Tampilan ringan dan sederhana di atas web player Spotify asli
 // @match        https://open.spotify.com/*
 // @run-at       document-start
@@ -27,14 +27,17 @@
   }
 
   function applyScale() {
-    html.style.setProperty('--sl-k', calcK().toFixed(3));
+    var k = calcK();
+    var mz = k > 1.1 ? Math.max(1.2, Math.min(2.3, k * 0.85)) : 1;
+    html.style.setProperty('--sl-k', k.toFixed(3));
+    html.style.setProperty('--sl-mz', mz.toFixed(3));
   }
   applyScale();
   window.addEventListener('resize', applyScale);
   window.addEventListener('load', applyScale);
 
   var css =
-    ':root { --sl-k: 1; }' +
+    ':root { --sl-k: 1; --sl-mz: 1; }' +
     'html, body { touch-action: pan-x pan-y !important; }' +
     '* { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; text-shadow: none !important; }' +
     'html.sl #main-view * { transition: none !important; animation: none !important; }' +
@@ -49,10 +52,14 @@
     ' position: fixed !important; left: 0 !important; top: -9999px !important;' +
     ' width: 100% !important; opacity: 0 !important; pointer-events: none !important; }' +
 
-    // isi halaman memenuhi layar di antara bar atas dan bawah
+    // isi halaman memenuhi layar di antara bar atas dan bawah + skala ramah mobile
     'html.sl #main-view { position: fixed !important; left: 0 !important; right: 0 !important;' +
     ' width: auto !important; height: auto !important; margin: 0 !important;' +
-    ' top: calc(52px * var(--sl-k)) !important; bottom: calc(74px * var(--sl-k)) !important; }' +
+    ' top: calc(52px * var(--sl-k)) !important; bottom: calc(74px * var(--sl-k)) !important;' +
+    ' overflow-y: auto !important; overflow-x: hidden !important; }' +
+    'html.sl #main-view > * { zoom: var(--sl-mz) !important; min-width: 0 !important; max-width: 100% !important; }' +
+    'html.sl #main-view [data-testid="grid-container"] { --column-width: 150px !important; --min-container-width: 0px !important; }' +
+    'html.sl #main-view [data-testid="carousel-scroller"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }' +
 
     // container bar atas, bawah, saran, dan tombol toggle
     '#sl-top, #sl-bot, #sl-sug, #sl-tg {' +
