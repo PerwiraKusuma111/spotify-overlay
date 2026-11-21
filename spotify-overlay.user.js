@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Spotify Overlay
 // @namespace    spotify-overlay
-// @version      4.1
+// @version      4.2
 // @description  Tampilan ringan dan sederhana di atas web player Spotify asli
 // @match        https://open.spotify.com/*
 // @run-at       document-start
@@ -40,7 +40,8 @@
     ':root { --sl-k: 1; --sl-mz: 1; }' +
     'html, body { touch-action: pan-x pan-y !important; }' +
     '* { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; text-shadow: none !important; }' +
-    'html.sl #main-view * { transition: none !important; animation: none !important; }' +
+    'html.sl #main-view *:not(img) { transition: none !important; animation: none !important; }' +
+    'html.sl #main-view img { opacity: 1 !important; visibility: visible !important; }' +
 
     'html.sl #Desktop_LeftSidebar_Id,' +
     'html.sl [data-testid="footer-div"],' +
@@ -93,7 +94,7 @@
 
     // tab filter (Semua/Musik/Podcast/Buku Audio) sejajar penuh kiri-kanan dengan kartu di bawah
     'html.sl .sl-fbar { position: relative !important; top: auto !important; z-index: auto !important; overflow: visible !important; }' +
-    'html.sl .sl-fwrap { width: 100% !important; max-width: 100% !important; flex: 1 1 100% !important; }' +
+    'html.sl .sl-fwrap { width: 100% !important; max-width: 100% !important; flex: 1 1 100% !important; display: flex !important; }' +
     'html.sl .sl-flist { display: flex !important; justify-content: space-between !important; align-items: center !important;' +
     ' flex-wrap: nowrap !important; width: 100% !important; gap: 8px !important; padding: 6px 0 !important;' +
     ' box-sizing: border-box !important; margin: 0 !important; overflow: visible !important; }' +
@@ -276,14 +277,17 @@
     }
     if (!hit) return;
     if (!hit.classList.contains('sl-flist')) hit.classList.add('sl-flist');
-    if (hit.parentElement && hit.parentElement !== mv && !hit.parentElement.classList.contains('sl-fwrap')) {
-      hit.parentElement.classList.add('sl-fwrap');
-    }
-    var cur = hit;
+    var cur = hit.parentElement;
+    var depth = 0;
     while (cur && cur !== mv) {
+      if (depth < 4 && !cur.classList.contains('sl-fwrap')) cur.classList.add('sl-fwrap');
+      depth++;
       if (!cur.classList.contains('sl-fbar')) {
         var pos = getComputedStyle(cur).position;
-        if (pos === 'sticky' || pos === 'fixed') cur.classList.add('sl-fbar');
+        if (pos === 'sticky' || pos === 'fixed') {
+          cur.classList.add('sl-fbar');
+          break;
+        }
       }
       cur = cur.parentElement;
     }
