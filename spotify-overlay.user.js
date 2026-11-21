@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Spotify Overlay
 // @namespace    spotify-overlay
-// @version      3.7
+// @version      3.8
 // @description  Tampilan ringan dan sederhana di atas web player Spotify asli
 // @match        https://open.spotify.com/*
 // @run-at       document-start
@@ -51,29 +51,35 @@
     ' position: fixed !important; left: 0 !important; top: -9999px !important;' +
     ' width: 100% !important; opacity: 0 !important; pointer-events: none !important; }' +
 
-    // Mode cari: tampilkan search bar & dropdown saran asli Spotify di posisi bar atas
+    // Mode cari: tampilkan HANYA bagian search input + dropdown saran asli Spotify secara full width
     'html.sl.sl-s [data-testid="global-nav-bar"] {' +
     ' position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important;' +
     ' width: auto !important; height: calc(54px * var(--sl-k)) !important;' +
     ' opacity: 1 !important; pointer-events: auto !important; z-index: 2147483002 !important;' +
     ' background: #121212 !important; border-bottom: 1px solid #242424 !important;' +
     ' padding: 0 calc(68px * var(--sl-k)) 0 calc(48px * var(--sl-k)) !important;' +
-    ' display: flex !important; align-items: center !important; justify-content: center !important;' +
+    ' display: flex !important; align-items: center !important; justify-content: stretch !important;' +
     ' overflow: visible !important; margin: 0 !important; box-sizing: border-box !important; }' +
 
-    'html.sl.sl-s [data-testid="global-nav-bar"] > * {' +
-    ' zoom: var(--sl-mz) !important; flex: 1 !important; min-width: 0 !important; max-width: 100% !important; }' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] > :not(:has([data-testid="search-input"])) { display: none !important; }' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] > :has([data-testid="search-input"]) {' +
+    ' zoom: var(--sl-mz) !important; flex: 1 1 100% !important; width: 100% !important;' +
+    ' max-width: 100% !important; min-width: 0 !important; display: flex !important; align-items: center !important; }' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] > :has([data-testid="search-input"]) > :not(:has([data-testid="search-input"])) { display: none !important; }' +
 
     'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="home-button"],' +
-    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="user-widget-link"],' +
-    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="whats-new-feed-button"],' +
-    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="friend-activity-button"],' +
-    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="browse-button"],' +
-    'html.sl.sl-s [data-testid="global-nav-bar"] a[href="/"],' +
-    'html.sl.sl-s [data-testid="global-nav-bar"] a[href="/download"] { display: none !important; }' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="browse-button"] { display: none !important; }' +
 
-    'html.sl.sl-s [data-testid="global-nav-bar"] form[role="search"] {' +
-    ' width: 100% !important; max-width: none !important; min-width: 0 !important; margin: 0 !important; }' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] form[role="search"],' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] form[role="search"] > div {' +
+    ' flex: 1 1 100% !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin: 0 !important; }' +
+
+    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="search-input"] {' +
+    ' width: 100% !important; min-width: 0 !important; padding-right: 34px !important; }' +
+
+    'html.sl.sl-s [data-testid="global-nav-bar"] [role="listbox"],' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="recent-searches-dropdown"] {' +
+    ' width: 100% !important; min-width: 100% !important; max-width: 100% !important; left: 0 !important; right: 0 !important; box-sizing: border-box !important; }' +
 
     'html.sl #main-view { position: fixed !important; left: 0 !important; right: 0 !important;' +
     ' width: auto !important; height: auto !important; margin: 0 !important;' +
@@ -83,13 +89,18 @@
     'html.sl #main-view [data-testid="grid-container"] { --column-width: 150px !important; --min-container-width: 0px !important; }' +
     'html.sl #main-view [data-testid="carousel-scroller"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }' +
 
-    // tab filter (Semua/Musik/Podcast/Buku Audio) center, ukuran pas, ikut ke-scroll
-    'html.sl .sl-fbar { position: relative !important; top: auto !important; z-index: auto !important; }' +
+    // tab filter (Semua/Musik/Podcast/Buku Audio) center, ukuran pil & teks pas tanpa kepotong, ikut ke-scroll
+    'html.sl .sl-fbar { position: relative !important; top: auto !important; z-index: auto !important; overflow: visible !important; }' +
     'html.sl .sl-flist { display: flex !important; justify-content: center !important; align-items: center !important;' +
-    ' width: 100% !important; gap: 8px !important; padding: 4px 12px !important; box-sizing: border-box !important; margin: 0 auto !important; }' +
+    ' flex-wrap: nowrap !important; width: 100% !important; gap: 6px !important; padding: 4px 8px !important;' +
+    ' box-sizing: border-box !important; margin: 0 auto !important; overflow: visible !important; }' +
     'html.sl .sl-flist > button, html.sl .sl-flist > * > button {' +
-    ' flex: 1 1 auto !important; justify-content: center !important; text-align: center !important;' +
-    ' font-size: 13px !important; padding: 7px 12px !important; min-height: 32px !important; white-space: nowrap !important; }' +
+    ' flex: 0 1 auto !important; border-radius: 999px !important; overflow: visible !important;' +
+    ' min-height: 28px !important; height: auto !important; padding: 0 !important; margin: 0 !important; }' +
+    'html.sl .sl-flist button > span {' +
+    ' font-size: 11.5px !important; line-height: 1.2 !important; padding: 6px 12px !important;' +
+    ' border-radius: 999px !important; white-space: nowrap !important; display: inline-flex !important;' +
+    ' align-items: center !important; justify-content: center !important; }' +
 
     '#sl-top, #sl-bot, #sl-cls, #sl-go, #sl-tg {' +
     ' display: none; position: fixed; z-index: 2147483000; box-sizing: border-box; color: #fff;' +
@@ -478,7 +489,7 @@
       setTimeout(closeSearch, 150);
     };
 
-    // Tutup bar cari otomatis setelah pilih salah satu saran lagu/pencarian
+    // Tutup bar cari otomatis setelah pilih salah satu saran lagu/pencarian atau tap area kosong
     document.addEventListener('click', function (ev) {
       if (!html.classList.contains('sl-s')) return;
       var nav = q('global-nav-bar');
@@ -488,6 +499,14 @@
           setTimeout(closeSearch, 200);
         }
       }
+    }, true);
+
+    document.addEventListener('pointerdown', function (ev) {
+      if (!html.classList.contains('sl-s')) return;
+      var nav = q('global-nav-bar');
+      if (btnCls.contains(ev.target) || elGo.contains(ev.target) || btnSearch.contains(ev.target)) return;
+      if (nav && nav.contains(ev.target)) return;
+      closeSearch();
     }, true);
 
     btnPv.onclick = function () { press('control-button-skip-back'); };
