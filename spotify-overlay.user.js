@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Spotify Overlay
 // @namespace    spotify-overlay
-// @version      3.8
+// @version      3.9
 // @description  Tampilan ringan dan sederhana di atas web player Spotify asli
 // @match        https://open.spotify.com/*
 // @run-at       document-start
@@ -51,13 +51,13 @@
     ' position: fixed !important; left: 0 !important; top: -9999px !important;' +
     ' width: 100% !important; opacity: 0 !important; pointer-events: none !important; }' +
 
-    // Mode cari: tampilkan HANYA bagian search input + dropdown saran asli Spotify secara full width
+    // Mode cari: tampilkan HANYA input + dropdown saran asli Spotify secara full width & bersih
     'html.sl.sl-s [data-testid="global-nav-bar"] {' +
     ' position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important;' +
     ' width: auto !important; height: calc(54px * var(--sl-k)) !important;' +
     ' opacity: 1 !important; pointer-events: auto !important; z-index: 2147483002 !important;' +
     ' background: #121212 !important; border-bottom: 1px solid #242424 !important;' +
-    ' padding: 0 calc(68px * var(--sl-k)) 0 calc(48px * var(--sl-k)) !important;' +
+    ' padding: 0 calc(50px * var(--sl-k)) 0 calc(50px * var(--sl-k)) !important;' +
     ' display: flex !important; align-items: center !important; justify-content: stretch !important;' +
     ' overflow: visible !important; margin: 0 !important; box-sizing: border-box !important; }' +
 
@@ -68,14 +68,16 @@
     'html.sl.sl-s [data-testid="global-nav-bar"] > :has([data-testid="search-input"]) > :not(:has([data-testid="search-input"])) { display: none !important; }' +
 
     'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="home-button"],' +
-    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="browse-button"] { display: none !important; }' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="browse-button"],' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="search-icon"],' +
+    'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="clear-button"] { display: none !important; }' +
 
     'html.sl.sl-s [data-testid="global-nav-bar"] form[role="search"],' +
     'html.sl.sl-s [data-testid="global-nav-bar"] form[role="search"] > div {' +
     ' flex: 1 1 100% !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin: 0 !important; }' +
 
     'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="search-input"] {' +
-    ' width: 100% !important; min-width: 0 !important; padding-right: 34px !important; }' +
+    ' width: 100% !important; min-width: 0 !important; padding-left: 14px !important; padding-right: 14px !important; }' +
 
     'html.sl.sl-s [data-testid="global-nav-bar"] [role="listbox"],' +
     'html.sl.sl-s [data-testid="global-nav-bar"] [data-testid="recent-searches-dropdown"] {' +
@@ -89,16 +91,16 @@
     'html.sl #main-view [data-testid="grid-container"] { --column-width: 150px !important; --min-container-width: 0px !important; }' +
     'html.sl #main-view [data-testid="carousel-scroller"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }' +
 
-    // tab filter (Semua/Musik/Podcast/Buku Audio) center, ukuran pil & teks pas tanpa kepotong, ikut ke-scroll
+    // tab filter (Semua/Musik/Podcast/Buku Audio) center, agak besar & pas, tanpa kepotong, ikut ke-scroll
     'html.sl .sl-fbar { position: relative !important; top: auto !important; z-index: auto !important; overflow: visible !important; }' +
     'html.sl .sl-flist { display: flex !important; justify-content: center !important; align-items: center !important;' +
-    ' flex-wrap: nowrap !important; width: 100% !important; gap: 6px !important; padding: 4px 8px !important;' +
+    ' flex-wrap: nowrap !important; width: 100% !important; gap: 8px !important; padding: 6px 10px !important;' +
     ' box-sizing: border-box !important; margin: 0 auto !important; overflow: visible !important; }' +
     'html.sl .sl-flist > button, html.sl .sl-flist > * > button {' +
     ' flex: 0 1 auto !important; border-radius: 999px !important; overflow: visible !important;' +
-    ' min-height: 28px !important; height: auto !important; padding: 0 !important; margin: 0 !important; }' +
+    ' min-height: 34px !important; height: auto !important; padding: 0 !important; margin: 0 !important; }' +
     'html.sl .sl-flist button > span {' +
-    ' font-size: 11.5px !important; line-height: 1.2 !important; padding: 6px 12px !important;' +
+    ' font-size: 13.5px !important; font-weight: 600 !important; line-height: 1.2 !important; padding: 8px 14px !important;' +
     ' border-radius: 999px !important; white-space: nowrap !important; display: inline-flex !important;' +
     ' align-items: center !important; justify-content: center !important; }' +
 
@@ -126,13 +128,13 @@
     ' width: calc(36px * var(--sl-k)); height: calc(36px * var(--sl-k)); padding: 0;' +
     ' display: inline-flex; align-items: center; justify-content: center; flex: none; cursor: pointer; }' +
 
-    '#sl-cls { display: none; top: calc(9px * var(--sl-k)); left: calc(6px * var(--sl-k)); z-index: 2147483005; }' +
+    '#sl-cls { display: none; top: calc(9px * var(--sl-k)); left: calc(7px * var(--sl-k)); z-index: 2147483005; }' +
     'html.sl.sl-s #sl-cls { display: inline-flex; }' +
 
     '#sl-go {' +
-    ' display: none; top: calc(9px * var(--sl-k)); right: calc(6px * var(--sl-k)); z-index: 2147483005;' +
-    ' background: #1db954; color: #000; font-weight: 700; border: 0; height: calc(36px * var(--sl-k));' +
-    ' border-radius: calc(18px * var(--sl-k)); padding: 0 calc(14px * var(--sl-k)); font: inherit; cursor: pointer; }' +
+    ' display: none; top: calc(9px * var(--sl-k)); right: calc(7px * var(--sl-k)); z-index: 2147483005;' +
+    ' background: #1db954; color: #000; border: 0; width: calc(36px * var(--sl-k)); height: calc(36px * var(--sl-k));' +
+    ' border-radius: 50%; padding: 0; cursor: pointer; }' +
     'html.sl.sl-s #sl-go.show { display: inline-flex; align-items: center; justify-content: center; }' +
 
     '#sl-o, #sl-tg {' +
@@ -389,7 +391,9 @@
     btnCls.setAttribute('aria-label', 'Tutup');
     btnCls.appendChild(svgIcon(IC_BACK, 19));
 
-    elGo = el('button', 'sl-go', 'Cari');
+    elGo = el('button', 'sl-go');
+    elGo.setAttribute('aria-label', 'Cari');
+    elGo.appendChild(svgIcon(IC_SEARCH, 19));
 
     var bot = el('div', 'sl-bot');
     var pb = el('div', 'sl-pb');
@@ -469,11 +473,13 @@
       html.classList.add('sl-s');
       bindNativeSearch();
       syncSearchBtn();
-      var inp = q('search-input');
-      if (inp) {
-        inp.focus();
-        inp.click();
-      }
+      setTimeout(function () {
+        var inp = q('search-input');
+        if (inp) {
+          inp.focus();
+          inp.click();
+        }
+      }, 30);
     };
 
     btnCls.onclick = closeSearch;
@@ -503,9 +509,8 @@
 
     document.addEventListener('pointerdown', function (ev) {
       if (!html.classList.contains('sl-s')) return;
-      var nav = q('global-nav-bar');
       if (btnCls.contains(ev.target) || elGo.contains(ev.target) || btnSearch.contains(ev.target)) return;
-      if (nav && nav.contains(ev.target)) return;
+      if (ev.target.closest('form[role="search"], [role="listbox"], [data-testid="recent-searches-dropdown"]')) return;
       closeSearch();
     }, true);
 
