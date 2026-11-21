@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Spotify Overlay
 // @namespace    spotify-overlay
-// @version      3.5
+// @version      3.6
 // @description  Tampilan ringan dan sederhana di atas web player Spotify asli
 // @match        https://open.spotify.com/*
 // @run-at       document-start
@@ -58,6 +58,14 @@
     'html.sl #main-view > * { zoom: var(--sl-mz) !important; min-width: 0 !important; max-width: 100% !important; }' +
     'html.sl #main-view [data-testid="grid-container"] { --column-width: 150px !important; --min-container-width: 0px !important; }' +
     'html.sl #main-view [data-testid="carousel-scroller"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }' +
+
+    // tab filter (Semua/Musik/Podcast/Buku Audio) center, ukuran pas, ikut ke-scroll
+    'html.sl .sl-fbar { position: relative !important; top: auto !important; z-index: auto !important; }' +
+    'html.sl .sl-flist { display: flex !important; justify-content: center !important; align-items: center !important;' +
+    ' width: 100% !important; gap: 8px !important; padding: 4px 12px !important; box-sizing: border-box !important; margin: 0 auto !important; }' +
+    'html.sl .sl-flist > button, html.sl .sl-flist > * > button {' +
+    ' flex: 1 1 auto !important; justify-content: center !important; text-align: center !important;' +
+    ' font-size: 13px !important; padding: 7px 12px !important; min-height: 32px !important; white-space: nowrap !important; }' +
 
     '#sl-top, #sl-bot, #sl-sug, #sl-tg {' +
     ' display: none; position: fixed; z-index: 2147483000; left: 0; right: 0;' +
@@ -281,9 +289,36 @@
     }
   }
 
+  function fixFilterBar(mv) {
+    var btns = mv.querySelectorAll('button');
+    var hit = null;
+    for (var i = 0; i < btns.length; i++) {
+      var tx = (btns[i].textContent || '').trim().toLowerCase();
+      if (tx === 'semua' || tx === 'all') {
+        var p = btns[i].parentElement;
+        if (p && p.querySelectorAll('button').length === 1 && p.parentElement) p = p.parentElement;
+        if (p && p.querySelectorAll('button').length >= 2 && p.querySelectorAll('button').length <= 6) {
+          hit = p;
+          break;
+        }
+      }
+    }
+    if (!hit) return;
+    if (!hit.classList.contains('sl-flist')) hit.classList.add('sl-flist');
+    var cur = hit;
+    while (cur && cur !== mv) {
+      if (!cur.classList.contains('sl-fbar')) {
+        var pos = getComputedStyle(cur).position;
+        if (pos === 'sticky' || pos === 'fixed') cur.classList.add('sl-fbar');
+      }
+      cur = cur.parentElement;
+    }
+  }
+
   function hideRight() {
     var mv = document.getElementById('main-view');
     if (!mv) return;
+    fixFilterBar(mv);
     var a = q('lyrics-npv-section') || q('npv-artist-link') || q('npv-artist-bio-button');
     if (!a || mv.contains(a)) return;
     var node = a;
