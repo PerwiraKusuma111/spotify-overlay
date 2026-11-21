@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Spotify Overlay
 // @namespace    spotify-overlay
-// @version      4.3
+// @version      4.4
 // @description  Tampilan ringan dan sederhana di atas web player Spotify asli
 // @match        https://open.spotify.com/*
 // @run-at       document-start
@@ -40,8 +40,12 @@
     ':root { --sl-k: 1; --sl-mz: 1; }' +
     'html, body { touch-action: pan-x pan-y !important; background: #121212 !important; }' +
     '* { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; text-shadow: none !important; }' +
-    'html.sl #main-view *:not(img) { transition: none !important; animation: none !important; }' +
+    'html.sl ::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }' +
+    'html.sl * { scrollbar-width: none !important; }' +
+    'html.sl .os-scrollbar, html.sl .os-scrollbar-track, html.sl .os-scrollbar-handle { display: none !important; pointer-events: none !important; }' +
+    'html.sl #main-view *:not(img) { transition: none !important; animation: none !important; box-shadow: none !important; }' +
     'html.sl #main-view img { opacity: 1 !important; visibility: visible !important; }' +
+    'html.sl [data-testid="component-shelf"] { content-visibility: auto; contain-intrinsic-size: 240px; }' +
 
     // sembunyikan sidebar kiri, footer, modal bahasa, resize bar, dan panel kanan secara instan (0ms, tanpa kedip)
     'html.sl #Desktop_LeftSidebar_Id,' +
@@ -267,6 +271,7 @@
   }
 
   function fixFilterBar(mv) {
+    if (mv.querySelector('.sl-flist')) return;
     var btns = mv.querySelectorAll('button');
     var hit = null;
     for (var i = 0; i < btns.length; i++) {
@@ -281,7 +286,7 @@
       }
     }
     if (!hit) return;
-    if (!hit.classList.contains('sl-flist')) hit.classList.add('sl-flist');
+    hit.classList.add('sl-flist');
     var cur = hit.parentElement;
     var depth = 0;
     while (cur && cur !== mv) {
@@ -299,6 +304,7 @@
   }
 
   function hideRight() {
+    if (document.hidden) return;
     var mv = document.getElementById('main-view');
     if (!mv) return;
     fixFilterBar(mv);
@@ -306,11 +312,11 @@
     if (!a || mv.contains(a)) return;
     var node = a;
     while (node.parentElement && !node.parentElement.contains(mv)) node = node.parentElement;
-    if (!node.contains(mv)) node.style.display = 'none';
+    if (!node.contains(mv) && node.style.display !== 'none') node.style.display = 'none';
   }
 
   var wrap, elIm, elT, elA, elTm, elPP, elPf, elGo;
-  var icPlayEl, icPauseEl, lastPlaying = null;
+  var icPlayEl, icPauseEl, lastPlaying = null, lastT = '', lastA = '', lastTm = '', lastW = '';
   var seeking = false, curDur = 0;
 
   function syncSearchBtn() {
@@ -357,13 +363,15 @@
 
     if (im && im.src) {
       if (elIm.src !== im.src) elIm.src = im.src;
-      elIm.style.display = 'block';
-    } else {
+      if (elIm.style.display !== 'block') elIm.style.display = 'block';
+    } else if (elIm.style.display !== 'none') {
       elIm.style.display = 'none';
     }
 
-    elT.textContent = t ? t.textContent : 'Belum ada lagu';
-    elA.textContent = a ? a.textContent : '';
+    var nt = t ? t.textContent : 'Belum ada lagu';
+    if (nt !== lastT) { lastT = nt; elT.textContent = nt; }
+    var na = a ? a.textContent : '';
+    if (na !== lastA) { lastA = na; elA.textContent = na; }
 
     var l = pp ? (pp.getAttribute('aria-label') || '').toLowerCase() : '';
     var playing = l.indexOf('jeda') > -1 || l.indexOf('pause') > -1;
@@ -381,8 +389,10 @@
     if (!seeking) {
       var posTxt = posEl ? (posEl.textContent || '').trim() : '';
       var durTxt = durEl ? (durEl.textContent || '').trim() : '';
-      elTm.textContent = (posTxt && durTxt) ? (posTxt + ' / ' + durTxt) : '0:00 / 0:00';
-      elPf.style.width = (e ? Math.min(100, (s / e) * 100) : 0) + '%';
+      var ntm = (posTxt && durTxt) ? (posTxt + ' / ' + durTxt) : '0:00 / 0:00';
+      if (ntm !== lastTm) { lastTm = ntm; elTm.textContent = ntm; }
+      var nw = (e ? Math.min(100, (s / e) * 100) : 0).toFixed(2) + '%';
+      if (nw !== lastW) { lastW = nw; elPf.style.width = nw; }
     }
   }
 
